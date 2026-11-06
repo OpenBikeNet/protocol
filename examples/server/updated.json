@@ -1,0 +1,14 @@
+{
+  "type": "updated",
+  "route": "velodrome-250",
+  "room": "public",
+  "riders": [
+    {
+      "id": "r7Kx2",
+      "lap": 5,
+      "distance": 213.4,
+      "speed": 12.1,
+      "power": 262
+    }
+  ]
+}

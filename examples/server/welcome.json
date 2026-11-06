@@ -1,0 +1,12 @@
+{
+  "type": "welcome",
+  "protocol": "0.1",
+  "connection": "c9Qe4",
+  "limits": {
+    "max_update_hz": 4,
+    "rider_timeout_s": 10,
+    "max_riders": 200,
+    "max_subscriptions": 16,
+    "max_message_bytes": 65536
+  }
+}

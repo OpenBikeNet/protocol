@@ -1,0 +1,16 @@
+{
+  "type": "snapshot",
+  "route": "velodrome-250",
+  "room": "public",
+  "riders": [
+    {
+      "id": "r7Kx2",
+      "app": "incyclist",
+      "name": "Ben",
+      "lap": 5,
+      "distance": 201.3,
+      "speed": 12.1,
+      "power": 260
+    }
+  ]
+}

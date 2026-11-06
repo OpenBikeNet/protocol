@@ -5,6 +5,7 @@ Prints one line per problem as `<path>: <reason>` and exits 1 if there is any pr
 Paths are relative to the repository root.
 """
 import json
+import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -16,6 +17,16 @@ ROUTES = ROOT / "routes"
 ROUTE_SCHEMA = ROOT / "schemas" / "route.schema.json"
 INVALID_ROUTES = ROOT / "tools" / "fixtures" / "invalid-routes"
 MISNAMED_ROUTES = ROOT / "tools" / "fixtures" / "misnamed-route"
+SCHEMAS = ROOT / "schemas"
+EXAMPLES = ROOT / "examples"
+SPEC = ROOT / "spec" / "v0.md"
+MESSAGE_SCHEMAS = ("app-message", "server-message", "stats")
+# The 14 error codes of spec 7.6.
+ERROR_CODES = {
+    "hello_required", "hello_repeated", "invalid_message", "unknown_type", "invalid_app_id",
+    "unknown_route", "invalid_room", "rider_exists", "unknown_rider", "invalid_value",
+    "rate_limited", "limit_exceeded", "message_too_large", "too_many_errors",
+}
 
 
 def rel(path):
@@ -33,6 +44,20 @@ def is_point(value):
 @lru_cache(maxsize=None)
 def route_validator():
     return Draft202012Validator(json.loads(ROUTE_SCHEMA.read_text(encoding="utf-8")))
+
+
+@lru_cache(maxsize=None)
+def schema_validator(name):
+    path = SCHEMAS / f"{name}.schema.json"
+    return Draft202012Validator(json.loads(path.read_text(encoding="utf-8")))
+
+
+def schema_problems(path, value, name):
+    """Problem lines for `value` checked against schemas/<name>.schema.json."""
+    return [
+        f"{rel(path)}: {'/'.join(str(part) for part in error.path) or '(root)'}: {error.message}"
+        for error in schema_validator(name).iter_errors(value)
+    ]
 
 
 def load_json(path):
@@ -80,6 +105,72 @@ def check_route(path, route):
     return problems
 
 
+def spec_objects():
+    """Yield (block number, line number, object) for every JSON object in the spec's json blocks."""
+    text = SPEC.read_text(encoding="utf-8")
+    decoder = json.JSONDecoder()
+    for number, match in enumerate(re.finditer(r"```json\n(.*?)```", text, re.S), 1):
+        line = text.count("\n", 0, match.start(1)) + 1
+        body = match.group(1)
+        position = 0
+        while True:
+            while position < len(body) and body[position].isspace():
+                position += 1
+            if position >= len(body):
+                break
+            try:
+                value, position = decoder.raw_decode(body, position)
+            except ValueError as error:
+                yield number, line, error
+                break
+            yield number, line, value
+
+
+def check_valid(path, schema, problems):
+    value, error = load_json(path)
+    if error:
+        problems.append(error)
+    else:
+        problems.extend(schema_problems(path, value, schema))
+
+
+def check_messages(problems):
+    missing = [n for n in MESSAGE_SCHEMAS if not (SCHEMAS / f"{n}.schema.json").is_file()]
+    for name in missing:
+        problems.append(f"schemas/{name}.schema.json: message schema is missing")
+    if missing:
+        return
+
+    for folder, schema in (("app", "app-message"), ("server", "server-message")):
+        for path in sorted((EXAMPLES / folder).glob("*.json")):
+            check_valid(path, schema, problems)
+    check_valid(EXAMPLES / "stats.json", "stats", problems)
+
+    for path in sorted((EXAMPLES / "invalid" / "app").glob("*.json")):
+        code, separator, _ = path.stem.partition("--")
+        if not separator or code not in ERROR_CODES:
+            problems.append(f"{rel(path)}: file name must start with an error code from spec 7.6 and --")
+        value, error = load_json(path)
+        if error:
+            problems.append(error)
+        elif not schema_problems(path, value, "app-message"):
+            problems.append(f"{rel(path)}: expected invalid, but passed")
+
+    examples = []
+    for path in sorted([*EXAMPLES.rglob("*.json"), *ROUTES.glob("*.json")]):
+        value, error = load_json(path)
+        if not error:
+            examples.append(value)
+    for number, line, value in spec_objects():
+        if isinstance(value, ValueError):
+            problems.append(f"spec/v0.md:{line}: json block {number} is not valid JSON: {value}")
+        elif value not in examples:
+            problems.append(
+                f"spec/v0.md:{line}: json block {number}: spec mismatch, "
+                f"no file in examples/ or routes/ has the object {json.dumps(value)[:70]}"
+            )
+
+
 def main():
     problems = []
 
@@ -110,6 +201,7 @@ def main():
                 continue
             problems.append(f"{rel(path)}: expected invalid, but passed")
 
+    check_messages(problems)
     return report(problems)
 
 
