@@ -1,0 +1,7 @@
+{
+  "id": "last-point-not-length",
+  "name": "Last point not length",
+  "length": 250,
+  "loop": true,
+  "profile": [[0, 0], [200, 0]]
+}

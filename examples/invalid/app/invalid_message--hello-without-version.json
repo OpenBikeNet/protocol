@@ -1,0 +1,8 @@
+{
+  "type": "hello",
+  "app": {
+    "id": "openradlr",
+    "name": "OpenRadlr",
+    "url": "https://openradlr.com"
+  }
+}

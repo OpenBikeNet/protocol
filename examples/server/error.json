@@ -1,0 +1,8 @@
+{
+  "type": "error",
+  "code": "invalid_value",
+  "message": "distance must be below 250",
+  "ref": "42",
+  "rider": "u-1842",
+  "fatal": false
+}

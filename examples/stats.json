@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "id": "openradlr",
+      "versions": [
+        "0.3.1"
+      ],
+      "connections": 1,
+      "riders": 4,
+      "first_seen": "2026-11-20",
+      "last_seen": "2026-11-21",
+      "rider_minutes_30d": 812
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "hello",
+  "app": {
+    "id": "openradlr",
+    "version": "0.3.1",
+    "name": "OpenRadlr",
+    "url": "https://openradlr.com"
+  }
+}

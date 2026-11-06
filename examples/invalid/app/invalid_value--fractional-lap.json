@@ -1,0 +1,11 @@
+{
+  "type": "update",
+  "riders": [
+    {
+      "rider": "u-1842",
+      "lap": 1.5,
+      "distance": 112.4,
+      "speed": 11.8
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/OpenBikeNet/protocol/schemas/app-message.schema.json",
+  "title": "OpenBikeNet message from an app",
+  "description": "A message an app sends to a server. See spec/v0.md sections 3 and 6.",
+  "type": "object",
+  "required": ["type"],
+  "$defs": {
+    "ref": { "type": "string", "maxLength": 64 },
+    "route": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+    "room": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,31}$" },
+    "riderId": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "riderState": {
+      "type": "object",
+      "required": ["lap", "distance", "speed"],
+      "properties": {
+        "lap": { "type": "integer", "minimum": 0 },
+        "distance": { "type": "number", "minimum": 0 },
+        "speed": { "type": "number", "minimum": 0, "maximum": 30 },
+        "power": { "type": "integer", "minimum": 0, "maximum": 3000 },
+        "cadence": { "type": "integer", "minimum": 0, "maximum": 250 },
+        "heart_rate": { "type": "integer", "minimum": 20, "maximum": 250 }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "title": "hello",
+      "properties": {
+        "type": { "const": "hello" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "app": {
+          "type": "object",
+          "required": ["id", "version"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,31}$" },
+            "version": { "type": "string", "minLength": 1, "maxLength": 32 },
+            "name": { "type": "string", "maxLength": 32 },
+            "url": { "type": "string", "maxLength": 200 }
+          }
+        }
+      },
+      "required": ["type", "app"]
+    },
+    {
+      "title": "subscribe",
+      "properties": {
+        "type": { "const": "subscribe" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" }
+      },
+      "required": ["type", "route"]
+    },
+    {
+      "title": "unsubscribe",
+      "properties": {
+        "type": { "const": "unsubscribe" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" }
+      },
+      "required": ["type", "route"]
+    },
+    {
+      "title": "join",
+      "allOf": [{ "$ref": "#/$defs/riderState" }],
+      "properties": {
+        "type": { "const": "join" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "rider": { "$ref": "#/$defs/riderId" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        }
+      },
+      "required": ["type", "rider", "route", "name"]
+    },
+    {
+      "title": "update",
+      "properties": {
+        "type": { "const": "update" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "riders": {
+          "type": "array",
+          "items": {
+            "allOf": [{ "$ref": "#/$defs/riderState" }],
+            "type": "object",
+            "properties": { "rider": { "$ref": "#/$defs/riderId" } },
+            "required": ["rider"]
+          }
+        }
+      },
+      "required": ["type", "riders"]
+    },
+    {
+      "title": "leave",
+      "properties": {
+        "type": { "const": "leave" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "rider": { "$ref": "#/$defs/riderId" }
+      },
+      "required": ["type", "rider"]
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/OpenBikeNet/protocol/schemas/server-message.schema.json",
+  "title": "OpenBikeNet message from a server",
+  "description": "A message a server sends to an app. See spec/v0.md sections 3 and 7.",
+  "type": "object",
+  "required": ["type"],
+  "$defs": {
+    "route": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+    "room": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,31}$" },
+    "serverId": { "type": "string", "minLength": 1, "maxLength": 16 },
+    "state": {
+      "type": "object",
+      "required": ["lap", "distance", "speed"],
+      "properties": {
+        "lap": { "type": "integer", "minimum": 0 },
+        "distance": { "type": "number", "minimum": 0 },
+        "speed": { "type": "number", "minimum": 0, "maximum": 30 },
+        "power": { "type": "integer", "minimum": 0, "maximum": 3000 },
+        "cadence": { "type": "integer", "minimum": 0, "maximum": 250 },
+        "heart_rate": { "type": "integer", "minimum": 20, "maximum": 250 }
+      }
+    },
+    "riderView": {
+      "allOf": [{ "$ref": "#/$defs/state" }],
+      "type": "object",
+      "required": ["id", "app", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/serverId" },
+        "app": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,31}$" },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        }
+      }
+    },
+    "riderUpdate": {
+      "allOf": [{ "$ref": "#/$defs/state" }],
+      "type": "object",
+      "required": ["id"],
+      "properties": { "id": { "$ref": "#/$defs/serverId" } }
+    }
+  },
+  "oneOf": [
+    {
+      "title": "welcome",
+      "properties": {
+        "type": { "const": "welcome" },
+        "protocol": { "type": "string", "minLength": 1 },
+        "connection": { "$ref": "#/$defs/serverId" },
+        "limits": {
+          "type": "object",
+          "required": [
+            "max_update_hz",
+            "rider_timeout_s",
+            "max_riders",
+            "max_subscriptions",
+            "max_message_bytes"
+          ],
+          "properties": {
+            "max_update_hz": { "type": "integer", "minimum": 1 },
+            "rider_timeout_s": { "type": "integer", "minimum": 1 },
+            "max_riders": { "type": "integer", "minimum": 1 },
+            "max_subscriptions": { "type": "integer", "minimum": 1 },
+            "max_message_bytes": { "type": "integer", "minimum": 1 }
+          }
+        }
+      },
+      "required": ["type", "protocol", "connection", "limits"]
+    },
+    {
+      "title": "snapshot",
+      "properties": {
+        "type": { "const": "snapshot" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" },
+        "riders": { "type": "array", "items": { "$ref": "#/$defs/riderView" } }
+      },
+      "required": ["type", "route", "room", "riders"]
+    },
+    {
+      "title": "joined",
+      "properties": {
+        "type": { "const": "joined" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" },
+        "rider": { "$ref": "#/$defs/riderView" }
+      },
+      "required": ["type", "route", "room", "rider"]
+    },
+    {
+      "title": "updated",
+      "properties": {
+        "type": { "const": "updated" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" },
+        "riders": { "type": "array", "items": { "$ref": "#/$defs/riderUpdate" } }
+      },
+      "required": ["type", "route", "room", "riders"]
+    },
+    {
+      "title": "left",
+      "properties": {
+        "type": { "const": "left" },
+        "route": { "$ref": "#/$defs/route" },
+        "room": { "$ref": "#/$defs/room" },
+        "id": { "$ref": "#/$defs/serverId" },
+        "reason": { "enum": ["leave", "timeout", "disconnect"] }
+      },
+      "required": ["type", "route", "room", "id", "reason"]
+    },
+    {
+      "title": "error",
+      "properties": {
+        "type": { "const": "error" },
+        "code": {
+          "enum": [
+            "hello_required",
+            "hello_repeated",
+            "invalid_message",
+            "unknown_type",
+            "invalid_app_id",
+            "unknown_route",
+            "invalid_room",
+            "rider_exists",
+            "unknown_rider",
+            "invalid_value",
+            "rate_limited",
+            "limit_exceeded",
+            "message_too_large",
+            "too_many_errors"
+          ]
+        },
+        "message": { "type": "string" },
+        "ref": { "type": "string", "maxLength": 64 },
+        "rider": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "fatal": { "type": "boolean" }
+      },
+      "required": ["type", "code", "message", "fatal"]
+    }
+  ]
+}

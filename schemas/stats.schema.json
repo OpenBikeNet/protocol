@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/OpenBikeNet/protocol/schemas/stats.schema.json",
+  "title": "OpenBikeNet usage statistics",
+  "description": "The body of GET /v0/stats. See spec/v0.md section 8.",
+  "type": "object",
+  "required": ["apps"],
+  "properties": {
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "versions",
+          "connections",
+          "riders",
+          "first_seen",
+          "last_seen",
+          "rider_minutes_30d"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,31}$" },
+          "versions": { "type": "array", "items": { "type": "string", "maxLength": 32 } },
+          "connections": { "type": "integer", "minimum": 0 },
+          "riders": { "type": "integer", "minimum": 0 },
+          "first_seen": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "last_seen": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "rider_minutes_30d": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}
