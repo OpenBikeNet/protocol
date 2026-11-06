@@ -1,0 +1,7 @@
+{
+  "id": "loop-elevation-mismatch",
+  "name": "Loop elevation mismatch",
+  "length": 250,
+  "loop": true,
+  "profile": [[0, 0], [250, 5]]
+}

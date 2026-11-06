@@ -6,13 +6,16 @@ This repository holds the open protocol that lets indoor cycling apps share ride
 of different apps can meet on the same road. See the [organisation profile](https://github.com/OpenBikeNet)
 for the overall goal.
 
-## What will live here
+## Contents
 
-- **The specification**: messages, transport, versioning.
-- **Shared routes**: canonical route files with stable IDs, so that a position on a route means
+- [`spec/v0.md`](spec/v0.md): the specification (messages, transport, versioning).
+- [`routes/`](routes/): shared route files with stable IDs, so that a position on a route means
   the same spot in every app.
-- **JSON schemas and examples** for the messages.
-- **Conformance tests** that any client or server implementation can run.
+- [`schemas/`](schemas/): JSON Schemas for routes and messages.
+- [`examples/`](examples/): example messages, used as shared test data.
+- [`apps.md`](apps.md): optional list of apps that speak the protocol.
+
+Run `python3 tools/validate.py` to check routes, schemas and examples.
 
 The reference server will live in its own repository.
 

@@ -1,0 +1,7 @@
+{
+  "id": "distances-not-increasing",
+  "name": "Distances not increasing",
+  "length": 250,
+  "loop": true,
+  "profile": [[0, 0], [100, 0], [100, 1], [250, 0]]
+}

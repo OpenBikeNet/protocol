@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/OpenBikeNet/protocol/schemas/route.schema.json",
+  "title": "OpenBikeNet route",
+  "description": "A shared route file, routes/<id>.json. See spec/v0.md section 4.",
+  "type": "object",
+  "required": ["id", "name", "length", "loop", "profile"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "length": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "loop": {
+      "type": "boolean"
+    },
+    "profile": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

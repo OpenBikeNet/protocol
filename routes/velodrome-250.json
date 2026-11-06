@@ -1,0 +1,7 @@
+{
+  "id": "velodrome-250",
+  "name": "Velodrome 250 m",
+  "length": 250,
+  "loop": true,
+  "profile": [[0, 0], [250, 0]]
+}

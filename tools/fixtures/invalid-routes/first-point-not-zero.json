@@ -1,0 +1,7 @@
+{
+  "id": "first-point-not-zero",
+  "name": "First point not zero",
+  "length": 250,
+  "loop": true,
+  "profile": [[10, 0], [250, 0]]
+}
