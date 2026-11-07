@@ -17,7 +17,11 @@ for the overall goal.
 
 Run `python3 tools/validate.py` to check routes, schemas and examples.
 
-The reference server will live in its own repository.
+## Servers
+
+The reference server lives in [OpenBikeNet/server](https://github.com/OpenBikeNet/server). A
+public instance runs at [openbikenet.cloud](https://openbikenet.cloud): apps connect to
+`wss://openbikenet.cloud/v0`. Anyone can run their own server; apps choose which one to use.
 
 ## Stages
 
