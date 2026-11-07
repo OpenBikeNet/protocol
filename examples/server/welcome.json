@@ -1,6 +1,6 @@
 {
   "type": "welcome",
-  "protocol": "0.1",
+  "protocol": "0.2",
   "connection": "c9Qe4",
   "limits": {
     "max_update_hz": 4,
