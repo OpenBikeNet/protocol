@@ -5,8 +5,10 @@ Prints one line per problem as `<path>: <reason>` and exits 1 if there is any pr
 Paths are relative to the repository root.
 """
 import json
+import math
 import re
 import sys
+import xml.etree.ElementTree as ET
 from functools import lru_cache
 from pathlib import Path
 
@@ -20,6 +22,9 @@ MISNAMED_ROUTES = ROOT / "tools" / "fixtures" / "misnamed-route"
 SCHEMAS = ROOT / "schemas"
 EXAMPLES = ROOT / "examples"
 SPEC = ROOT / "spec" / "v0.md"
+# GPX tracks next to a route are measured on this sphere (metres), the radius Incyclist uses.
+EARTH_RADIUS = 6378100.0
+GPX_TOLERANCE = 0.01
 MESSAGE_SCHEMAS = ("app-message", "server-message", "stats")
 # The 14 error codes of spec 7.6.
 ERROR_CODES = {
@@ -105,6 +110,39 @@ def check_route(path, route):
     return problems
 
 
+def haversine(p, q):
+    lat1, lng1, lat2, lng2 = map(math.radians, (*p, *q))
+    a = (math.sin((lat2 - lat1) / 2) ** 2
+         + math.cos(lat1) * math.cos(lat2) * math.sin((lng2 - lng1) / 2) ** 2)
+    return 2 * EARTH_RADIUS * math.asin(math.sqrt(a))
+
+
+def check_gpx(path, routes):
+    """A GPX track is only a convenience copy of a route: it must match the route's length and loop."""
+    name = rel(path)
+    route = routes.get(path.stem)
+    if route is None:
+        return [f"{name}: no route {path.stem!r} for this track"]
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError as error:
+        return [f"{name}: not valid XML: {error}"]
+    track = [
+        (float(point.get("lat")), float(point.get("lon")))
+        for point in root.iter("{http://www.topografix.com/GPX/1/1}trkpt")
+    ]
+    if len(track) < 2:
+        return [f"{name}: track has fewer than 2 points"]
+
+    problems = []
+    length = sum(haversine(p, q) for p, q in zip(track, track[1:]))
+    if is_number(route.get("length")) and abs(length - route["length"]) > GPX_TOLERANCE:
+        problems.append(f"{name}: track is {length:.3f} m long, expected {route['length']}")
+    if route.get("loop") is True and track[0] != track[-1]:
+        problems.append(f"{name}: loop route, but the track does not end at its first point")
+    return problems
+
+
 def spec_objects():
     """Yield (block number, line number, object) for every JSON object in the spec's json blocks."""
     text = SPEC.read_text(encoding="utf-8")
@@ -179,6 +217,7 @@ def main():
         return report(problems)
 
     ids = {}
+    routes = {}
     for path in sorted(ROUTES.glob("*.json")):
         route, error = load_json(path)
         if error:
@@ -193,6 +232,10 @@ def main():
                 )
             else:
                 ids[route_id] = path
+                routes[route_id] = route
+
+    for path in sorted(ROUTES.glob("*.gpx")):
+        problems.extend(check_gpx(path, routes))
 
     for folder in (INVALID_ROUTES, MISNAMED_ROUTES):
         for path in sorted(folder.glob("*.json")):
