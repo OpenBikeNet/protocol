@@ -32,7 +32,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 32,
-          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          "pattern": "^(?=.*\\S)[^\\u0000-\\u001f\\u007f-\\u009f\\u00ad\\u0600-\\u0605\\u061c\\u06dd\\u070f\\u0890-\\u0891\\u08e2\\u180e\\u200b-\\u200c\\u200e-\\u200f\\u2028-\\u202e\\u2060-\\u2064\\u2066-\\u206f\\ue000-\\uf8ff\\ufeff\\ufff9-\\ufffb\ud804\udcbd\ud804\udccd\ud80d\udc30-\ud80d\udc3f\ud82f\udca0-\ud82f\udca3\ud834\udd73-\ud834\udd7a\udb40\udc01\udb40\udc20-\udb40\udc7f\udb80\udc00-\udbbf\udffd\udbc0\udc00-\udbff\udffd]+$"
         }
       }
     },
@@ -139,6 +139,14 @@
         "fatal": { "type": "boolean" }
       },
       "required": ["type", "code", "message", "fatal"]
+    },
+    {
+      "title": "pong",
+      "properties": {
+        "type": { "const": "pong" },
+        "ref": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["type"]
     }
   ]
 }
