@@ -1,0 +1,7 @@
+{
+  "id": "herne-hill-450-clockwise",
+  "name": "Herne Hill Velodrome (clockwise)",
+  "length": 450,
+  "loop": true,
+  "profile": [[0, 0], [450, 0]]
+}
