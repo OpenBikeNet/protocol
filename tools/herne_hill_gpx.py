@@ -15,7 +15,7 @@ from a GPS track (their own map data and terrain) can draw the real surroundings
 
 The track is an oval of two straights and two semicircles, ridden anticlockwise. Its centre,
 direction and bend radius were fitted to the track's outline in OpenStreetMap
-(https://www.openstreetmap.org/relation/2524096); the inside edge fits the oval to within 0.7 m
+(https://www.openstreetmap.org/relation/2524096); the inside edge fits the oval to within 0.6 m
 on average. Only those few numbers come from the map, not the outline itself. The start/finish
 line is on the home straight, just north of the pavilion at the south end of the stands, where
 aerial imagery shows the white line across the track.

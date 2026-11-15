@@ -12,7 +12,7 @@ for the overall goal.
 - [`routes/`](routes/): shared route files with stable IDs, so that a position on a route means
   the same spot in every app. A route may also come as a GPX track (`routes/<id>.gpx`) for apps
   that only ride GPS routes; the JSON file stays the authority. `tools/velodrome_gpx.py` writes
-  the velodrome's track.
+  the velodrome's track, `tools/herne_hill_gpx.py` the tracks of Herne Hill Velodrome.
 - [`schemas/`](schemas/): JSON Schemas for routes and messages.
 - [`examples/`](examples/): example messages, used as shared test data.
 - [`apps.md`](apps.md): optional list of apps that speak the protocol.
