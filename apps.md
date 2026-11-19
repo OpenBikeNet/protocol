@@ -7,3 +7,4 @@ pull request that adds a row.
 | App ID | App | Website | Contact |
 |---|---|---|---|
 | openradlr | OpenRadlr | https://openradlr.com | GitHub @RalfLeonFasler |
+| crankhog | CrankHog | https://crankhog.app | GitHub @raytfitzgerald |
